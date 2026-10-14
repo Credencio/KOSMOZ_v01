@@ -19,7 +19,7 @@ window.APP_CONFIG = {
   portalUrl: "https://www.arcgis.com",
   clientId: "",
 
-  projectTitle: "Survey 4_1 · Tree Translocation",
+  projectTitle: "Survey 4.1 · Tree Transplanting & Nursery Tracking",
   projectSubtitle: "Preparation, transplanting & nursery tracking",
 
   // Fotografias do formulário, pela ordem das fases (nome da pergunta "image" no XLSForm)

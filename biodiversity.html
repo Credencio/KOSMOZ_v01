@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biodiversity · Ecological Monitoring Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-survey="biodiversity">
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="brand-text">
+      <h1 id="projectTitle">Biodiversity</h1>
+      <p id="projectSubtitle" class="muted"></p>
+    </div>
+  </div>
+  <div class="live" id="live">
+    <span class="live-dot" aria-hidden="true"></span>
+    <span id="liveText">Connecting…</span>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="refreshBtn" type="button" data-i18n="refresh">Refresh</button>
+    <button class="btn" id="pdfBtn" type="button" data-i18n="export_pdf">PDF report</button>
+    <button class="btn" id="xlsxBtn" type="button" data-i18n="export_xlsx">Excel data</button>
+    <div class="seg" role="group" aria-label="Language">
+      <button type="button" class="seg-btn" id="langEn">EN</button>
+      <button type="button" class="seg-btn" id="langPt">PT</button>
+    </div>
+  </div>
+  <nav class="nav-tabs" id="navTabs" aria-label="Surveys"></nav>
+</header>
+
+<main class="wrap">
+  <section class="kpis" id="kpis" aria-label="Indicators"></section>
+
+  <section class="grid-main">
+    <div class="card map-card">
+      <div class="card-head">
+        <h2 data-i18n="map_title">Map</h2>
+        <div class="seg" role="group" aria-label="Basemap">
+          <button type="button" class="seg-btn active" data-basemap="imagery" data-i18n="imagery">Satellite</button>
+          <button type="button" class="seg-btn" data-basemap="topo" data-i18n="topo">Topographic</button>
+        </div>
+      </div>
+      <div id="map" class="map" role="region" aria-label="Map"></div>
+      <div class="legend" id="mapLegend"></div>
+    </div>
+    <aside class="card feed-card">
+      <div class="card-head"><h2 data-i18n="feed_title">Recent submissions</h2><span class="muted small" id="feedCount"></span></div>
+      <ul class="feed" id="feed"></ul>
+    </aside>
+  </section>
+
+  <section class="card" id="actionsCard" hidden>
+    <div class="card-head"><h2 data-i18n="actions_title">Action tracker</h2></div>
+    <div id="actionsBody"></div>
+  </section>
+
+  <section class="charts" id="charts"></section>
+
+  <section class="card gallery-card">
+    <div class="card-head"><h2 data-i18n="gallery_title">Photo gallery</h2><span class="muted small" id="galleryCount"></span></div>
+    <div class="seg gal-tabs" id="galleryTabs" role="group" aria-label="Photos"></div>
+    <div class="gallery" id="gallery"></div>
+    <button class="btn ghost more" id="galleryMore" type="button" hidden>Show all</button>
+  </section>
+
+  <section class="card table-card">
+    <div class="card-head"><h2 data-i18n="tbl_title">Records</h2><span class="muted small" id="tblCount"></span></div>
+    <div class="filters" id="filters"></div>
+    <div class="table-scroll"><table class="tbl"><thead><tr id="tblHead"></tr></thead><tbody id="tblBody"></tbody></table></div>
+  </section>
+
+  <footer class="foot muted small"><span id="sourceInfo"></span></footer>
+</main>
+
+<div class="drawer-bg" id="drawerBg" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="drawerTitle">
+  <div class="drawer-head">
+    <div><p class="eyebrow" id="drawerEyebrow"></p><h2 id="drawerTitle"></h2></div>
+    <button class="btn ghost" id="drawerClose" type="button" data-i18n="close">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+  <div class="lb-top">
+    <span class="lb-idx" id="lbIdx"></span>
+    <div class="lb-actions">
+      <a class="btn ghost" id="lbOrig" href="#" target="_blank" rel="noopener" data-i18n="open_original">Open original</a>
+      <button class="btn ghost" id="lbRecord" type="button" data-i18n="open_record">Open record</button>
+      <button class="btn" id="lbClose" type="button" data-i18n="close">Close</button>
+    </div>
+  </div>
+  <div class="lb-stage">
+    <button class="lb-nav" id="lbPrev" type="button" aria-label="Previous">‹</button>
+    <img id="lbImg" alt="">
+    <button class="lb-nav" id="lbNext" type="button" aria-label="Next">›</button>
+  </div>
+  <p class="lb-cap" id="lbCap"></p>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="js/surveys.js"></script>
+<script src="js/schemas.js"></script>
+<script src="js/dash-i18n.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/dash-exports.js"></script>
+<script src="js/dash.js"></script>
+</body>
+</html>

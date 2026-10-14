@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Survey 4.1 · Ecological Monitoring Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="brand-text">
+      <h1 id="projectTitle">Tree Translocation Monitor</h1>
+      <p id="projectSubtitle" class="muted">Preparation, transplanting &amp; nursery tracking</p>
+    </div>
+  </div>
+  <div class="route" id="route"></div>
+  <div class="live" id="live">
+    <span class="live-dot" aria-hidden="true"></span>
+    <span id="liveText">Connecting…</span>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="refreshBtn" type="button" data-i18n="refresh">Refresh</button>
+    <button class="btn" id="pdfBtn" type="button" data-i18n="export_pdf">PDF report</button>
+    <button class="btn" id="xlsxBtn" type="button" data-i18n="export_xlsx">Excel data</button>
+    <button class="btn ghost" id="authBtn" type="button" hidden>Sign in</button>
+    <div class="seg" role="group" aria-label="Language">
+      <button type="button" class="seg-btn" data-lang="en" id="langEn">EN</button>
+      <button type="button" class="seg-btn" data-lang="pt" id="langPt">PT</button>
+    </div>
+  </div>
+  <nav class="nav-tabs" id="navTabs" aria-label="Surveys"></nav>
+</header>
+
+<main class="wrap">
+  <section class="kpis" id="kpis" aria-label="Indicators"></section>
+
+  <section class="pipeline-card" aria-labelledby="pipeTitle">
+    <div class="card-head">
+      <h2 id="pipeTitle" data-i18n="pipe_title">Translocation workflow</h2>
+      <p class="muted small" data-i18n="pipe_sub">Trees by stage reached</p>
+    </div>
+    <div class="coverage" id="coverage"></div>
+    <ol class="pipeline" id="pipeline"></ol>
+  </section>
+
+  <section class="grid-main">
+    <div class="card map-card">
+      <div class="card-head">
+        <h2 data-i18n="map_title">Tree map</h2>
+        <div class="seg" role="group" aria-label="Basemap">
+          <button type="button" class="seg-btn active" data-basemap="imagery" data-i18n="imagery">Satellite</button>
+          <button type="button" class="seg-btn" data-basemap="topo" data-i18n="topo">Topographic</button>
+        </div>
+      </div>
+      <div id="map" class="map" role="region" aria-label="Map"></div>
+      <div class="legend" id="mapLegend"></div>
+    </div>
+    <aside class="card feed-card" aria-labelledby="feedTitle">
+      <div class="card-head">
+        <h2 id="feedTitle" data-i18n="feed_title">Recent submissions</h2>
+        <span class="muted small" id="feedCount"></span>
+      </div>
+      <ul class="feed" id="feed"></ul>
+    </aside>
+  </section>
+
+  <section class="charts">
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_status">Overall status</h2></div><div id="chartStatus"></div></div>
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_ready">Readiness</h2></div><div id="chartReady"></div></div>
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_species">Species</h2></div><div id="chartSpecies"></div></div>
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_treat">Treatments undertaken</h2></div><div id="chartTreat"></div></div>
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_tech">By technician</h2></div><div id="chartTech"></div></div>
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_iucn">IUCN status</h2></div><div id="chartIucn"></div></div>
+    <div class="card"><div class="card-head"><h2 data-i18n="ch_crown">Average crown by phase</h2></div><div id="chartCrown"></div></div>
+    <div class="card wide2"><div class="card-head"><h2 data-i18n="ch_daily">Entries per day</h2><span class="muted small" data-i18n="last30">Last 30 days</span></div><div id="chartDaily"></div></div>
+  </section>
+
+  <section class="card gallery-card" aria-labelledby="galTitle">
+    <div class="card-head">
+      <h2 id="galTitle" data-i18n="gallery_title">Photo gallery</h2>
+      <span class="muted small" id="galleryCount"></span>
+    </div>
+    <div class="seg gal-tabs" id="galleryTabs" role="group" aria-label="Phase"></div>
+    <div class="gallery" id="gallery"></div>
+    <button class="btn ghost more" id="galleryMore" type="button" hidden>Show all</button>
+  </section>
+
+  <section class="card table-card" aria-labelledby="tblTitle">
+    <div class="card-head">
+      <h2 id="tblTitle" data-i18n="tbl_title">Tree register</h2>
+      <span class="muted small" id="tblCount"></span>
+    </div>
+    <div class="filters">
+      <input id="fSearch" type="search" data-i18n-ph="search_ph" placeholder="Search tree ID, tag, plot, species…" aria-label="Search">
+      <select id="fSpecies" aria-label="Species"></select>
+      <select id="fTech" aria-label="Technician"></select>
+      <select id="fStatus" aria-label="Overall status"></select>
+      <select id="fReady" aria-label="Readiness"></select>
+    </div>
+    <div class="table-scroll">
+      <table class="tbl" id="tbl">
+        <thead><tr id="tblHead"></tr></thead>
+        <tbody id="tblBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="foot muted small">
+    <span id="sourceInfo"></span>
+  </footer>
+</main>
+
+<div class="drawer-bg" id="drawerBg" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="drawerTitle">
+  <div class="drawer-head">
+    <div>
+      <p class="eyebrow" id="drawerEyebrow"></p>
+      <h2 id="drawerTitle"></h2>
+    </div>
+    <button class="btn ghost" id="drawerClose" type="button" data-i18n="close">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+  <div class="lb-top">
+    <span class="lb-idx" id="lbIdx"></span>
+    <div class="lb-actions">
+      <a class="btn ghost" id="lbOrig" href="#" target="_blank" rel="noopener" data-i18n="open_original">Open original</a>
+      <button class="btn ghost" id="lbRecord" type="button" data-i18n="open_record">Tree record</button>
+      <button class="btn" id="lbClose" type="button" data-i18n="close">Close</button>
+    </div>
+  </div>
+  <div class="lb-stage">
+    <button class="lb-nav" id="lbPrev" type="button" aria-label="Previous">‹</button>
+    <img id="lbImg" alt="">
+    <button class="lb-nav" id="lbNext" type="button" aria-label="Next">›</button>
+  </div>
+  <p class="lb-cap" id="lbCap"></p>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="js/surveys.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/exports.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

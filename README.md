@@ -1,86 +1,72 @@
-# Tree Translocation Monitor
+# Ecological Monitoring Platform
 
-Plataforma web estática (GitHub Pages) para acompanhar em tempo real as submissões do formulário Survey123
-**Survey 4_1 – Tree Transplanting Preparation and Nursery Tracking**.
+Plataforma web estática (GitHub Pages) com **um dashboard por formulário Survey123**, cada um a ler o seu
+Feature Service do ArcGIS Online em tempo real (verificação de novas submissões a cada 30 s).
 
-Lê diretamente o Feature Service do ArcGIS Online (uma camada, uma entrada por árvore, 4 fotografias por fase)
-e verifica novas submissões a cada 30 s (configurável).
+## Abas (pela ordem dos feature services)
 
-## O que mostra
+| # | Aba | Página | Feature Service (view) |
+|---|-----|--------|------------------------|
+| 1 | Survey 4 – Tree Retention, Translocation and Removal | `index.html` | `Survey_4_Tree_Retention_view` |
+| 2 | Survey 4.1 – Tree Transplanting Preparation and Nursery Tracking | `survey-4-1.html` | `Survey_4_1_-_Tree_Transplanting_Preparation_and_Nursery_Tracking_2_view1` |
+| 3 | Biodiversity Survey | `biodiversity.html` | `Biodiversity_Survey5_view` |
+| 4 | HST Survey | `hst.html` | `HST_Survey_view` |
 
-- Interface em **inglês** (como o formulário) com botão **EN / PT**; a escolha fica guardada no browser
-- Indicadores: entradas submetidas, árvores levantadas, preparação concluída, prontas, encaixotadas e sobrevivência
-- **Cobertura do levantamento**: árvores levantadas face às 147 planeadas (`plannedTreeIds` em `js/config.js`), com a lista dos Tree IDs pendentes
-- Fluxo de translocação: Caracterizada → Preparação concluída → Pronta → Encaixotada → No viveiro (última entrada de cada árvore)
-- Mapa (satélite / topográfico) com as árvores coloridas pelo *Overall Status* e miniatura da foto
-- Submissões recentes com as 4 fotos de fase de cada entrada
-- Gráficos: estado geral, prontidão, espécies, tratamentos, técnico, estado IUCN e entradas por dia
-- **Galeria de fotografias** com separadores por fase (Características, Preparação, Transplante, Viveiro) e visualizador em ecrã inteiro
-- Tabela com pesquisa, filtros, ordenação e indicador das fases com foto; painel de detalhe com a sequência das 4 fotos
-- **PDF report**: resumo, cobertura, fluxo, mapa, gráficos, registo de árvores, observações e registo fotográfico por fase (uma linha por árvore)
-- **Excel data**: a tabela do Feature Service (todos os campos, datas Excel, coordenadas) + folha `photos` com a fase e o link de cada fotografia
+Todas as páginas partilham a barra de abas, o tema (preto / verde / creme), o botão **EN / PT**,
+o **Relatório PDF** e a exportação **Excel**. Acrescentar `?demo` ao URL mostra dados fictícios (o modo demo mantém-se ao mudar de aba).
+
+## O que cada dashboard mostra
+
+- **Survey 4**: árvores avaliadas, nº para translocação / retenção / remoção, % com danos, probabilidade média de sobrevivência; mapa colorido pela intenção; gráficos de espécies, IUCN, condição, danos, etc.; galeria de fotos (árvore, tronco, folhas/fruto…).
+- **Survey 4.1** (dashboard dedicado, igual ao anterior): cobertura das 147 árvores planeadas, fluxo de translocação, fotos e copa (`tree_crown`, `tree_crown_p`, `tree_crown_t`, `tree_crown_n`) por fase.
+- **Biodiversity**: registos, espécies, registos de espécies ameaçadas, indivíduos contados, ninhos/tocas ativos, locais; gráficos por grupo taxonómico, espécie, estado IUCN, habitat, etc.
+- **HST**: inspeções, % de conformidade nas 15 verificações, riscos alto/crítico, não-conformidades, **acompanhamento de ações** (responsável, prazo, em atraso); as assinaturas não aparecem na galeria.
+
+Em todos: mapa (satélite/topográfico), submissões recentes, submissões por dia, galeria por campo de foto,
+tabela com pesquisa e filtros, e painel de detalhe com todas as respostas organizadas pelos grupos do formulário.
 
 ## Estrutura
 
 ```
-index.html        página
-css/styles.css    estilos
-js/config.js      ← configuração (o único ficheiro a editar)
-js/i18n.js        textos EN/PT e rótulos das listas do formulário
-js/exports.js     relatório PDF e exportação Excel
-js/app.js         lógica: ligação ao serviço, tempo real, mapa, gráficos, tabela
+index.html            Survey 4 (aba 1)
+survey-4-1.html       Survey 4.1 (aba 2, dashboard dedicado)
+biodiversity.html     Biodiversity (aba 3)
+hst.html              HST (aba 4)
+css/styles.css        estilos comuns
+js/surveys.js         ← configuração de TODAS as abas (URLs, KPIs, gráficos, filtros, colunas, fotos)
+js/schemas.js         grupos, perguntas e listas de escolha dos XLSForms (gerado)
+js/nav.js             barra de abas
+js/dash.js            motor dos dashboards genéricos (Survey 4, Biodiversity, HST)
+js/dash-exports.js    PDF e Excel dos dashboards genéricos
+js/dash-i18n.js       textos EN/PT dos dashboards genéricos
+js/config.js          configuração do Survey 4.1 (URL, 147 Tree IDs planeados)
+js/app.js, js/i18n.js, js/exports.js   dashboard dedicado do Survey 4.1
 .nojekyll
 ```
 
-## 1. Obter o URL do Feature Service
+## Publicar no GitHub Pages
 
-1. ArcGIS Online → **Conteúdo** → abra o item *Feature Layer* criado pelo Survey123
-   (não o item *Form*).
-2. No canto inferior direito, copie o **URL** — termina em `/FeatureServer`.
-3. Recomendado: em **Criar vista** crie uma *View layer* só de leitura e use o URL da vista.
-   Assim pode partilhá-la sem expor a camada onde o formulário escreve.
+1. Crie um repositório e carregue **todo o conteúdo** desta pasta (não a pasta em si) para a raiz.
+2. **Settings → Pages → Build and deployment → Deploy from a branch**, branch `main`, pasta `/ (root)`.
+3. Após 1–2 minutos a plataforma fica em `https://<utilizador>.github.io/<repositório>/`.
 
-Cole o URL em `js/config.js` (já vem configurado com a vista pública só de leitura `Survey_4_1_-_Tree_Transplanting_Preparation_and_Nursery_Tracking_2_view`):
+## Alterar um serviço ou acrescentar uma aba
 
-```js
-serviceUrl: "https://services.arcgis.com/XXXXXXXX/arcgis/rest/services/survey123_xxxxx/FeatureServer",
-```
+- Para trocar o URL de uma aba, edite `serviceUrl` na entrada correspondente de `js/surveys.js`
+  (no Survey 4.1, edite `js/config.js`).
+- A ordem das abas é a ordem do array `window.SURVEYS` em `js/surveys.js`.
+- Para uma nova aba: copie `hst.html` com outro nome, altere `data-survey="..."` no `<body>`,
+  acrescente a entrada em `js/surveys.js` e o esquema em `js/schemas.js`.
 
-A camada do formulário é detetada automaticamente (campo `tree_id`); se necessário defina `layerId`.
+## Se mudar um formulário (XLSForm)
 
-## 2. Escolher o acesso
+Os rótulos das perguntas e das escolhas vêm de `js/schemas.js`. Campos novos aparecem automaticamente
+no painel de detalhe e no Excel (rotulados pelo domínio do serviço); para ter os rótulos do formulário,
+volte a gerar `schemas.js` a partir dos XLSForms atualizados (ou peça-me para o fazer).
+Se mudar o *nome* de um campo usado em KPIs, gráficos ou filtros, atualize-o em `js/surveys.js`.
 
-**A) Vista pública (mais simples).** Partilhe a View layer com *Todos (público)*. Não precisa de mais nada.
-Qualquer pessoa com o link do site vê os dados.
+## Segurança
 
-**B) Dados privados (início de sessão ArcGIS).**
-1. ArcGIS Online → **Conteúdo → Novo item → Desenvolver aplicações / Credenciais OAuth** (Application).
-2. Em **Redirect URLs** adicione o endereço exato do site, por ex.
-   `https://<utilizador>.github.io/<repositorio>/`
-3. Copie o **Client ID** para `clientId` em `js/config.js`.
-4. Só utilizadores da organização com acesso à camada conseguem ver os dados.
-
-## 3. Publicar no GitHub Pages
-
-1. Crie um repositório no GitHub e envie estes ficheiros para a raiz (ou para `/docs`).
-2. **Settings → Pages → Build and deployment → Deploy from a branch** → `main` / `(root)` → Save.
-3. Depois de 1–2 minutos o site fica em `https://<utilizador>.github.io/<repositorio>/`.
-
-## Modo de demonstração
-
-Com `serviceUrl` vazio (ou adicionando `?demo` ao endereço) a plataforma abre com dados de exemplo
-e simula uma nova submissão a cada 20 s.
-
-## Notas
-
-- "Tempo real" = verificação periódica (`pollSeconds`). Em cada ciclo é feita uma consulta leve
-  (contagem + data da última edição); os dados completos só são descarregados quando algo mudou.
-  Para isto funcionar bem, mantenha o **Editor tracking** ativo na camada (o Survey123 ativa-o por defeito).
-- A verificação pausa quando o separador do browser não está visível e retoma ao voltar.
-- Os rótulos das listas vêm dos domínios da camada; se não existirem, usa os rótulos do XLSForm (em `js/i18n.js`).
-- Se acrescentar campos ao formulário, adicione-os em `SECTIONS` (painel de detalhe) e/ou `COLS` (tabela) em `js/app.js`, e os rótulos em `js/i18n.js`.
-- As fases das fotografias são identificadas pela palavra-chave do anexo (nome da pergunta `image`: `tree_photo`, `prep_photo`, `transpla_photo`, `nursery_photo`), definidas em `photoPhases`.
-- Se acrescentar árvores à lista `tree_id` do formulário, acrescente-as também a `plannedTreeIds`.
-- Copa por fase: `tree_crown` (características), `tree_crowm_p` (preparação), `tree_crowm_t` (transplante) e `tree_crowm_n` (viveiro) aparecem por baixo da foto de cada fase, no painel, no gráfico "Copa média por fase" e no PDF. A ligação campo → fase pode ser alterada com `phaseNotes` em `js/config.js`.
-- Campos novos que ainda não estejam previstos aparecem automaticamente no painel da árvore, na secção "Other fields", com o rótulo (alias) do serviço, e no Excel.
-- Bibliotecas usadas (carregadas do cdnjs): Leaflet 1.9.4 (mapa), JSZip 3.10.1 (Excel), pdf-lib 1.17.1 (PDF).
+- Use sempre **views só de leitura** partilhadas com o público (capabilities = *Query*).
+- Se os serviços não puderem ser públicos, registe uma aplicação no ArcGIS Online e coloque o `clientId`
+  em `js/surveys.js` (e em `js/config.js` para o Survey 4.1); a plataforma mostra então o botão *Sign in with ArcGIS*.

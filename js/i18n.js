@@ -146,7 +146,7 @@ window.FIELD_LABELS = {
   readiness: ["Readiness Status", "Estado de prontidão"], ready_date: ["Ready for Transplanting Date", "Data pronta a transplantar"], boxer_date: ["Boxer Date preparing", "Data de encaixotamento"],
   arrival_condition: ["Nursery Arrival Condition", "Condição à chegada ao viveiro"], post_stabilisation: ["Post-transfer Stabilisation", "Estabilização pós-transferência"],
   observations: ["Observations / Actions Required", "Observações / Ações necessárias"], overall_status: ["Overall Status", "Estado geral"],
-  tree_crowm_p: ["Tree crown at preparation (m)", "Copa na preparação (m)"], tree_crowm_t: ["Tree crown at transplanting (m)", "Copa no transplante (m)"],
-  tree_crowm_n: ["Tree crown in nursery (m)", "Copa no viveiro (m)"],
+  tree_crown_p: ["Tree crown at preparation (m)", "Copa na preparação (m)"], tree_crown_t: ["Tree crown at transplanting (m)", "Copa no transplante (m)"],
+  tree_crown_n: ["Tree crown in nursery (m)", "Copa no viveiro (m)"],
   _created: ["Submitted at", "Submetido em"], _creator: ["Submitted by", "Submetido por"]
 };

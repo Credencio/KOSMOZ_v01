@@ -26,13 +26,13 @@
     return (mf && mf.alias && mf.alias !== mf.name) ? mf.alias : k;
   };
   // Medida da copa associada a cada fase de fotografia (campos do formulário)
-  const PHASE_NOTES = Object.assign({ tree_photo: "tree_crown", prep_photo: "tree_crowm_p", transpla_photo: "tree_crowm_t", nursery_photo: "tree_crowm_n" }, (window.APP_CONFIG || {}).phaseNotes || {});
+  const PHASE_NOTES = Object.assign({ tree_photo: "tree_crown", prep_photo: "tree_crown_p", transpla_photo: "tree_crown_t", nursery_photo: "tree_crown_n" }, (window.APP_CONFIG || {}).phaseNotes || {});
   const noteOf = (x, phase) => {
     const f = PHASE_NOTES[phase]; const v = f ? x.a[f] : null;
     if (v == null || v === "") return "";
     return typeof v === "number" ? t("crown_val", { v: fmtNum(v, 2) }) : label(f, v);
   };
-  const CROWN_FIELDS = [["tree_photo", "tree_crown"], ["prep_photo", "tree_crowm_p"], ["transpla_photo", "tree_crowm_t"], ["nursery_photo", "tree_crowm_n"]];
+  const CROWN_FIELDS = [["tree_photo", "tree_crown"], ["prep_photo", "tree_crown_p"], ["transpla_photo", "tree_crown_t"], ["nursery_photo", "tree_crown_n"]];
 
   const FIELD_LIST = {
     tree_iucn: "iucn", arrival_condition: "condition", readiness: "readiness", prep_completed: "yes_no",
@@ -47,9 +47,9 @@
 
   const SECTIONS = [
     ["sec_caract", ["tree_id", "tree_tag", "plot_number", "species", "tree_iucn", "tree_technician", "dbh_cm", "tree_height", "tree_crown"]],
-    ["sec_prep", ["rootball_diam", "rootball_height", "treatment", "tree_crowm_p"]],
-    ["sec_transfer", ["stabilisation", "prep_date", "prep_completed", "readiness", "ready_date", "boxer_date", "tree_crowm_t"]],
-    ["sec_nursery", ["arrival_condition", "post_stabilisation", "overall_status", "observations", "tree_crowm_n"]],
+    ["sec_prep", ["rootball_diam", "rootball_height", "treatment", "tree_crown_p"]],
+    ["sec_transfer", ["stabilisation", "prep_date", "prep_completed", "readiness", "ready_date", "boxer_date", "tree_crown_t"]],
+    ["sec_nursery", ["arrival_condition", "post_stabilisation", "overall_status", "observations", "tree_crown_n"]],
     ["sec_general", ["source_site", "survey_intention", "survey_type", "nursery", "_coords", "precision_gps"]],
     ["sec_submission", ["_created", "_creator"]]
   ];
@@ -714,11 +714,11 @@
         ready_date: ready === "ready" ? ts + 2 * 864e5 : null, boxer_date: boxed ? ts + 3 * 864e5 : null,
         arrival_condition: boxed ? this.pick(["good", "good", "fair", "poor"]) : null, post_stabilisation: boxed ? this.pick(["stabilised", "re_stabilised"]) : null,
         observations: this.pick(["", "", "Extra watering recommended.", "Check stake on next visit.", "Some wilting after transfer."]), overall_status: status,
-        tree_crowm_p: null, tree_crowm_t: null, tree_crowm_n: null,
+        tree_crown_p: null, tree_crown_t: null, tree_crown_n: null,
         CreationDate: ts, Creator: "demo"
       };
-      if (prep === "yes") a.tree_crowm_p = Math.round(a.tree_crown * (0.7 + this.rnd() * 0.15) * 100) / 100;
-      if (boxed) { a.tree_crowm_t = Math.round(a.tree_crowm_p * (0.9 + this.rnd() * 0.1) * 100) / 100; a.tree_crowm_n = Math.round(a.tree_crowm_t * (0.95 + this.rnd() * 0.15) * 100) / 100; }
+      if (prep === "yes") a.tree_crown_p = Math.round(a.tree_crown * (0.7 + this.rnd() * 0.15) * 100) / 100;
+      if (boxed) { a.tree_crown_t = Math.round(a.tree_crown_p * (0.9 + this.rnd() * 0.1) * 100) / 100; a.tree_crown_n = Math.round(a.tree_crown_t * (0.95 + this.rnd() * 0.15) * 100) / 100; }
       const x = { raw: a, a: lc(a), oid: this.n, gid: `d${this.n}`, created: ts, creator: "demo" };
       x.lat = this.center[0] + (this.rnd() - 0.5) * 0.02; x.lon = this.center[1] + (this.rnd() - 0.5) * 0.02; x.geom = { x: x.lon, y: x.lat };
       const nPh = boxed ? 4 : prep === "yes" ? 3 : 2;
