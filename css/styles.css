@@ -150,6 +150,8 @@ button, input, select { font: inherit; color: inherit; }
 /* Charts */
 .charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .charts .wide { grid-column: 1 / -1; }
+.charts .wide2 { grid-column: span 2; }
+@media (max-width: 640px) { .charts .wide2 { grid-column: auto; } }
 .hbars { display: grid; gap: 8px; }
 .hbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; font-size: .8rem; }
 .hbar .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -258,7 +260,9 @@ body.lb-open { overflow: hidden; }
 .timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .tl-item { margin: 0; display: grid; gap: 4px; position: relative; min-width: 0; }
 .tl-step { position: absolute; top: 4px; left: 4px; z-index: 1; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font: 700 .68rem/18px var(--f-mono); text-align: center; }
-.tl-item figcaption { font-size: .72rem; color: var(--muted); text-align: center; }
+.tl-item figcaption { font-size: .72rem; color: var(--muted); text-align: center; display: grid; gap: 2px; }
+.tl-note { color: var(--ink); font-size: .72rem; text-align: left; line-height: 1.35; }
+.lb-note { color: var(--ink); }
 .ph-missing { aspect-ratio: 4 / 3; border: 1px dashed var(--line); border-radius: 8px; display: grid; place-items: center; font-size: .72rem; color: var(--muted); }
 .gal-tabs { margin-bottom: 12px; flex-wrap: wrap; }
 .gal-tabs .cnt { font-family: var(--f-mono); opacity: .7; font-size: .7rem; }

@@ -20,7 +20,19 @@
     return s;
   }
   const loc = () => t("locale");
-  const fieldLabel = (k) => { const f = window.FIELD_LABELS[k]; return f ? f[LANG === "pt" ? 1 : 0] : k; };
+  const fieldLabel = (k) => {
+    const f = window.FIELD_LABELS[k]; if (f) return f[LANG === "pt" ? 1 : 0];
+    const mf = S.meta && S.meta.fields && S.meta.fields.find((x) => x.name.toLowerCase() === k);
+    return (mf && mf.alias && mf.alias !== mf.name) ? mf.alias : k;
+  };
+  // Medida da copa associada a cada fase de fotografia (campos do formulário)
+  const PHASE_NOTES = Object.assign({ tree_photo: "tree_crown", prep_photo: "tree_crowm_p", transpla_photo: "tree_crowm_t", nursery_photo: "tree_crowm_n" }, (window.APP_CONFIG || {}).phaseNotes || {});
+  const noteOf = (x, phase) => {
+    const f = PHASE_NOTES[phase]; const v = f ? x.a[f] : null;
+    if (v == null || v === "") return "";
+    return typeof v === "number" ? t("crown_val", { v: fmtNum(v, 2) }) : label(f, v);
+  };
+  const CROWN_FIELDS = [["tree_photo", "tree_crown"], ["prep_photo", "tree_crowm_p"], ["transpla_photo", "tree_crowm_t"], ["nursery_photo", "tree_crowm_n"]];
 
   const FIELD_LIST = {
     tree_iucn: "iucn", arrival_condition: "condition", readiness: "readiness", prep_completed: "yes_no",
@@ -35,9 +47,9 @@
 
   const SECTIONS = [
     ["sec_caract", ["tree_id", "tree_tag", "plot_number", "species", "tree_iucn", "tree_technician", "dbh_cm", "tree_height", "tree_crown"]],
-    ["sec_prep", ["rootball_diam", "rootball_height", "treatment"]],
-    ["sec_transfer", ["stabilisation", "prep_date", "prep_completed", "readiness", "ready_date", "boxer_date"]],
-    ["sec_nursery", ["arrival_condition", "post_stabilisation", "overall_status", "observations"]],
+    ["sec_prep", ["rootball_diam", "rootball_height", "treatment", "tree_crowm_p"]],
+    ["sec_transfer", ["stabilisation", "prep_date", "prep_completed", "readiness", "ready_date", "boxer_date", "tree_crowm_t"]],
+    ["sec_nursery", ["arrival_condition", "post_stabilisation", "overall_status", "observations", "tree_crowm_n"]],
     ["sec_general", ["source_site", "survey_intention", "survey_type", "nursery", "_coords", "precision_gps"]],
     ["sec_submission", ["_created", "_creator"]]
   ];
@@ -324,7 +336,11 @@
     const end = new Date(); end.setHours(0, 0, 0, 0);
     const daily = []; for (let i = 29; i >= 0; i--) { const d = new Date(end); d.setDate(d.getDate() - i); daily.push({ t: d.getTime(), n: 0 }); }
     S.records.forEach((x) => { if (!x.created) return; const d = new Date(x.created); d.setHours(0, 0, 0, 0); const b = daily.find((y) => y.t === d.getTime()); if (b) b.n++; });
-    return { kpis, pipeline, status, ready, species, tech, treat, iucn, daily, coverage: cov };
+    const crown = CROWN_FIELDS.map(([ph, f]) => {
+      const vals = T.map((x) => x.a[f]).filter((v) => typeof v === "number" && isFinite(v));
+      return vals.length ? { key: ph, label: phaseLabel(ph), n: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 100) / 100, count: vals.length } : null;
+    }).filter(Boolean);
+    return { kpis, pipeline, status, ready, species, tech, treat, iucn, daily, crown, coverage: cov };
   }
 
   /* ================= Renderização ================= */
@@ -443,7 +459,7 @@
   function hbars(el, entries, opts = {}) {
     const max = Math.max(1, ...entries.map((e) => e.n));
     el.innerHTML = entries.length ? `<div class="hbars">${entries.map((e) =>
-      `<div class="hbar"><span class="lbl">${opts.italic ? `<em>${esc(e.label)}</em>` : esc(e.label)}</span><span class="num">${fmtNum(e.n)}</span><span class="track"><i style="width:${(e.n / max) * 100}%;--c:${e.color ? `var(${e.color})` : "var(--accent)"}"></i></span></div>`).join("")}</div>`
+      `<div class="hbar"><span class="lbl">${opts.italic ? `<em>${esc(e.label)}</em>` : esc(e.label)}</span><span class="num">${fmtNum(e.n, opts.dec || 0)}${opts.unit || ""}</span><span class="track"><i style="width:${(e.n / max) * 100}%;--c:${e.color ? `var(${e.color})` : "var(--accent)"}"></i></span></div>`).join("")}</div>`
       : `<p class="empty">${t("no_data")}</p>`;
   }
   function renderCharts(st) {
@@ -457,6 +473,7 @@
     hbars($("chartTreat"), st.treat);
     hbars($("chartTech"), st.tech);
     hbars($("chartIucn"), st.iucn);
+    hbars($("chartCrown"), st.crown, { dec: 2, unit: " m" });
     renderDaily(st.daily);
   }
   function renderDaily(daily) {
@@ -542,7 +559,7 @@
     const v = x.a[k];
     if (v == null || v === "") return "—";
     if (/date$/.test(k)) return fmtDate(v);
-    if (FIELD_LIST[k] || k === "species" || k === "tree_technician") return label(k, v);
+    if (FIELD_LIST[k] || S.domains[k] || k === "species" || k === "tree_technician") return label(k, v);
     if (typeof v === "number") return fmtNum(v, 2);
     return String(v);
   }
@@ -555,10 +572,16 @@
       ${!DEMO && S.meta && !S.meta.hasAttachments ? `<p class="empty">${t("no_attach")}</p>` : `<div class="timeline">${PHASES.map((p, i) => { const ph = photoOfPhase(x, p); return `
         <figure class="tl-item"><span class="tl-step">${i + 1}</span>${ph
           ? `<button type="button" class="ph-thumb" data-phase="${esc(p)}"><img src="${esc(photoSrc(ph))}" alt="${esc(phaseLabel(p))}" loading="lazy"></button>`
-          : `<div class="ph-missing">${t("missing_photo")}</div>`}<figcaption>${esc(phaseLabel(p))}</figcaption></figure>`; }).join("")}</div>
+          : `<div class="ph-missing">${t("missing_photo")}</div>`}<figcaption>${esc(phaseLabel(p))}${noteOf(x, p) ? `<span class="tl-note">${esc(noteOf(x, p))}</span>` : ""}</figcaption></figure>`; }).join("")}</div>
         ${list.filter((ph) => phaseIdx(ph.phase) === 99).length ? `<div class="photos">${list.filter((ph) => phaseIdx(ph.phase) === 99).map((ph) => `<button type="button" class="ph-thumb" data-name="${esc(ph.name)}"><img src="${esc(photoSrc(ph))}" alt="${esc(ph.name)}" loading="lazy"></button>`).join("")}</div>` : ""}`}
       </section>`;
-    $("drawerBody").innerHTML = timeline + SECTIONS.map(([title, fields]) => `<section class="dsec"><h3>${t(title)}</h3><dl class="dl">${fields.map((k) => `<dt>${esc(fieldLabel(k))}</dt><dd>${esc(fmtField(x, k))}</dd>`).join("")}</dl></section>`).join("")
+    // só campos que existem no serviço; os campos novos aparecem automaticamente em "Other fields"
+    const exists = (k) => k.startsWith("_") || !S.meta || !S.meta.fields || S.meta.fields.some((f) => f.name.toLowerCase() === k) || x.a[k] != null;
+    const shown = new Set(SECTIONS.flatMap(([, f]) => f));
+    const SYS = /^(objectid|globalid|start|end|device_id|pc_latitude|pc_longitude|creationdate|creator|editdate|editor|shape.*)$/;
+    const extra = (S.meta && S.meta.fields ? S.meta.fields.map((f) => f.name.toLowerCase()) : Object.keys(x.a)).filter((k) => !shown.has(k) && !SYS.test(k));
+    const secs = SECTIONS.map(([title, fields]) => [t(title), fields.filter(exists)]).concat(extra.length ? [[t("sec_other"), extra]] : []);
+    $("drawerBody").innerHTML = timeline + secs.map(([title, fields]) => `<section class="dsec"><h3>${esc(title)}</h3><dl class="dl">${fields.map((k) => `<dt>${esc(fieldLabel(k))}</dt><dd>${esc(fmtField(x, k))}</dd>`).join("")}</dl></section>`).join("")
       + (x.lat != null ? `<section class="dsec"><a class="btn" href="https://www.google.com/maps?q=${x.lat},${x.lon}" target="_blank" rel="noopener">${t("gmaps")}</a></section>` : "");
     $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden", "false"); $("drawerBg").hidden = false;
     const items = list.map((ph) => ({ ph, x }));
@@ -593,7 +616,7 @@
     const { list, i } = S.lb; const it = list[i]; if (!it) return;
     const src = photoSrc(it.ph);
     $("lbImg").src = src; $("lbImg").alt = it.ph.name;
-    $("lbCap").innerHTML = `<b>Tree ${esc(it.x.a.tree_id || "—")}</b> · <i>${esc(label("species", it.x.a.species))}</i>${it.x.a.tree_tag ? ` · <span class="tag">${esc(it.x.a.tree_tag)}</span>` : ""}<br><span class="muted">${esc(phaseLabel(it.ph.phase))} · ${esc(it.ph.name)} · ${fmtDateTime(it.x.created)}</span>`;
+    $("lbCap").innerHTML = `<b>Tree ${esc(it.x.a.tree_id || "—")}</b> · <i>${esc(label("species", it.x.a.species))}</i>${it.x.a.tree_tag ? ` · <span class="tag">${esc(it.x.a.tree_tag)}</span>` : ""}<br><span class="muted">${esc(phaseLabel(it.ph.phase))} · ${esc(it.ph.name)} · ${fmtDateTime(it.x.created)}</span>${noteOf(it.x, it.ph.phase) ? `<br><span class="lb-note">${esc(noteOf(it.x, it.ph.phase))}</span>` : ""}`;
     $("lbIdx").textContent = `${i + 1} / ${list.length}`;
     $("lbOrig").href = src;
     $("lbPrev").disabled = list.length < 2; $("lbNext").disabled = list.length < 2;
@@ -691,8 +714,11 @@
         ready_date: ready === "ready" ? ts + 2 * 864e5 : null, boxer_date: boxed ? ts + 3 * 864e5 : null,
         arrival_condition: boxed ? this.pick(["good", "good", "fair", "poor"]) : null, post_stabilisation: boxed ? this.pick(["stabilised", "re_stabilised"]) : null,
         observations: this.pick(["", "", "Extra watering recommended.", "Check stake on next visit.", "Some wilting after transfer."]), overall_status: status,
+        tree_crowm_p: null, tree_crowm_t: null, tree_crowm_n: null,
         CreationDate: ts, Creator: "demo"
       };
+      if (prep === "yes") a.tree_crowm_p = Math.round(a.tree_crown * (0.7 + this.rnd() * 0.15) * 100) / 100;
+      if (boxed) { a.tree_crowm_t = Math.round(a.tree_crowm_p * (0.9 + this.rnd() * 0.1) * 100) / 100; a.tree_crowm_n = Math.round(a.tree_crowm_t * (0.95 + this.rnd() * 0.15) * 100) / 100; }
       const x = { raw: a, a: lc(a), oid: this.n, gid: `d${this.n}`, created: ts, creator: "demo" };
       x.lat = this.center[0] + (this.rnd() - 0.5) * 0.02; x.lon = this.center[1] + (this.rnd() - 0.5) * 0.02; x.geom = { x: x.lon, y: x.lat };
       const nPh = boxed ? 4 : prep === "yes" ? 3 : 2;
@@ -709,7 +735,7 @@
 
   /* ================= API para exports.js ================= */
   window.TTM = {
-    S, CFG, PHASES, t, label, fmtNum, fmtDate, fmtDateTime, stats, sortRows, val, cssVar, treatments,
+    S, CFG, PHASES, t, label, noteOf, fieldLabel, fmtNum, fmtDate, fmtDateTime, stats, sortRows, val, cssVar, treatments,
     lang: () => LANG, isDemo: () => DEMO, toast, api, photosOf, photoOfPhase, photoSrc, allPhotos, phaseLabel, phaseIdx,
     STATUS_COLOR, READY_COLOR, FIELD_LIST
   };

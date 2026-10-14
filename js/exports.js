@@ -166,7 +166,7 @@ ${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.open
     }
   }
 
-  function hbarsPdf(R, x, y, w, title, entries, colorOf, italic) {
+  function hbarsPdf(R, x, y, w, title, entries, colorOf, italic, dec, unit) {
     const { fmtNum, t } = window.TTM;
     R.text(title, x, y, { size: 10, font: R.f.bold, color: C.green });
     y -= 14;
@@ -174,7 +174,7 @@ ${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.open
     const max = Math.max(1, ...entries.map((e) => e.n));
     entries.forEach((e) => {
       R.text(R.fit(e.label, w - 34, 8.5, italic ? R.f.it : R.f.reg), x, y, { size: 8.5, font: italic ? R.f.it : R.f.reg });
-      const num = fmtNum(e.n); R.text(num, x + w - R.width(num, 8.5), y, { size: 8.5, color: C.muted });
+      const num = fmtNum(e.n, dec || 0) + (unit || ""); R.text(num, x + w - R.width(num, 8.5), y, { size: 8.5, color: C.muted });
       R.rect(x, y - 7, w, 3.5, C.cream);
       R.rect(x, y - 7, Math.max(1.5, (e.n / max) * w), 3.5, colorOf(e));
       y -= 19;
@@ -344,7 +344,8 @@ ${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.open
         const y4 = hbarsPdf(R, R.M + cw + 24, yA, cw, t("ch_treat"), st.treat, () => C.green);
         const y5 = hbarsPdf(R, R.M + cw + 24, y4 - 10, cw, t("ch_iucn"), st.iucn, () => C.leaf);
         const y6 = hbarsPdf(R, R.M + cw + 24, y5 - 10, cw, t("ch_tech"), st.tech, () => C.green);
-        R.y = Math.min(y3, y6) - 10;
+        const y7 = st.crown.length ? hbarsPdf(R, R.M + cw + 24, y6 - 10, cw, t("ch_crown"), st.crown.map((c) => Object.assign({}, c, { label: `${c.label} (${c.count})` })), () => C.leaf, false, 2, " m") : y6;
+        R.y = Math.min(y3, y7) - 10;
 
         R.ensure(180);
         R.h2(t("r_daily"));
@@ -376,12 +377,13 @@ ${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.open
           { label: t("c_prep"), w: 56 }, { label: t("c_boxer"), w: 60 }, { label: t("c_photos"), w: 15 + 0 }
         ].map((c, i, arr) => (i === arr.length - 1 ? Object.assign(c, { w: 761.89 - arr.slice(0, -1).reduce((s, x) => s + x.w, 0) }) : c)), rows, true);
 
-        const obs = recs.filter((x) => x.a.observations && String(x.a.observations).trim());
+        const noteTxt = (x) => (x.a.observations ? String(x.a.observations).trim() : "");
+        const obs = recs.filter((x) => noteTxt(x));
         if (obs.length) {
           R.ensure(60, true); R.y -= 6; R.h2(`${t("r_obs")} (${obs.length})`, true);
           const ow = R.W - 2 * R.M - 230;
           obs.forEach((x, i) => {
-            const lines = R.wrap(x.a.observations, ow, 8), hgt = 6 + lines.length * 11;
+            const lines = R.wrap(noteTxt(x), ow, 8), hgt = 6 + lines.length * 11;
             R.ensure(hgt + 4, true);
             if (i % 2) R.rect(R.M, R.y - hgt + 9, R.W - 2 * R.M, hgt, "#F8F4E8");
             R.text(`Tree ${x.a.tree_id || "—"}`, R.M + 4, R.y, { size: 8, font: f.bold });
@@ -399,7 +401,7 @@ ${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.open
           R.add(false);
           R.h2(`${t("r_photos")} (${withPh.length})`);
           if (withPh.length > LIMIT) { R.text(t("r_photos_cap", { n: LIMIT }), R.M, R.y, { size: 8, color: C.muted }); R.y -= 14; }
-          const P = T.PHASES, gap = 8, cw2 = (W - gap * (P.length - 1)) / P.length, ih = cw2 * 0.75, rowH = ih + 40;
+          const P = T.PHASES, gap = 8, cw2 = (W - gap * (P.length - 1)) / P.length, ih = cw2 * 0.75, rowH = ih + 56;
           const phaseHead = () => { P.forEach((p, i) => R.text(R.fit(`${i + 1}. ${T.phaseLabel(p)}`, cw2, 8, f.bold), R.M + i * (cw2 + gap), R.y, { size: 8, font: f.bold, color: C.green })); R.y -= 12; };
           phaseHead();
           let skipped = 0;
@@ -417,7 +419,9 @@ ${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.open
                 R.page.drawImage(img, { x: cx + (cw2 - iw) / 2, y: top - ih + (ih - hh) / 2, width: iw, height: hh });
               } catch (e) { skipped++; R.text("—", cx + cw2 / 2, top - ih / 2, { color: C.muted }); }
             }
-            R.y = top - ih - 16;
+            let hasNote = false;
+            P.forEach((p, i) => { const n = T.noteOf(x, p); if (!n) return; hasNote = true; R.wrap(n, cw2, 7).slice(0, 2).forEach((ln, k) => R.text(ln, R.M + i * (cw2 + gap), top - ih - 9 - k * 8.5, { size: 7, color: C.muted })); });
+            R.y = top - ih - (hasNote ? 32 : 16);
           }
           if (skipped) { R.ensure(14); R.text(t("r_photos_skip", { n: skipped }), R.M, R.y, { size: 8, color: C.muted }); R.y -= 14; }
         }

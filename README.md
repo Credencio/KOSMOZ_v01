@@ -81,4 +81,6 @@ e simula uma nova submissão a cada 20 s.
 - Se acrescentar campos ao formulário, adicione-os em `SECTIONS` (painel de detalhe) e/ou `COLS` (tabela) em `js/app.js`, e os rótulos em `js/i18n.js`.
 - As fases das fotografias são identificadas pela palavra-chave do anexo (nome da pergunta `image`: `tree_photo`, `prep_photo`, `transpla_photo`, `nursery_photo`), definidas em `photoPhases`.
 - Se acrescentar árvores à lista `tree_id` do formulário, acrescente-as também a `plannedTreeIds`.
+- Copa por fase: `tree_crown` (características), `tree_crowm_p` (preparação), `tree_crowm_t` (transplante) e `tree_crowm_n` (viveiro) aparecem por baixo da foto de cada fase, no painel, no gráfico "Copa média por fase" e no PDF. A ligação campo → fase pode ser alterada com `phaseNotes` em `js/config.js`.
+- Campos novos que ainda não estejam previstos aparecem automaticamente no painel da árvore, na secção "Other fields", com o rótulo (alias) do serviço, e no Excel.
 - Bibliotecas usadas (carregadas do cdnjs): Leaflet 1.9.4 (mapa), JSZip 3.10.1 (Excel), pdf-lib 1.17.1 (PDF).
