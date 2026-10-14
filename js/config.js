@@ -10,7 +10,7 @@
  *              endereço do site no GitHub Pages (ex.: https://utilizador.github.io/repositorio/).
  */
 window.APP_CONFIG = {
-  serviceUrl: "https://services8.arcgis.com/Yb7xytb4Ff2eEN6Y/arcgis/rest/services/Survey_4_1_-_Tree_Transplanting_Preparation_and_Nursery_Tracking_2_view/FeatureServer",
+  serviceUrl: "https://services8.arcgis.com/Yb7xytb4Ff2eEN6Y/arcgis/rest/services/Survey_4_1_-_Tree_Transplanting_Preparation_and_Nursery_Tracking_2_view1/FeatureServer",
 
   layerId: 0,           // camada do formulário (survey_4_1_tree_transplanting); null = deteção automática
 
