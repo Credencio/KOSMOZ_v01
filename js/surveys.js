@@ -22,7 +22,7 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
   window.SURVEYS = [
     /* ===================== 1. SURVEY 4 ===================== */
     {
-      id: "survey4", page: "index.html", tab: "Survey 4",
+      id: "survey4", page: "index.html", tab: "Survey 4", navSub: "Retention · Translocation · Removal",
       title: "Survey 4 · Tree Retention, Translocation & Removal", subtitle: { en: "Tree characteristics and fate assessment", pt: "Características das árvores e avaliação do destino" },
       serviceUrl: "https://services8.arcgis.com/Yb7xytb4Ff2eEN6Y/arcgis/rest/services/Survey_4_Tree_Retention_view/FeatureServer",
       layerId: 0,
@@ -58,11 +58,11 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
     },
 
     /* ===================== 2. SURVEY 4.1 (dashboard dedicado) ===================== */
-    { id: "survey41", page: "survey-4-1.html", tab: "Survey 4.1", dedicated: true },
+    { id: "survey41", page: "survey-4-1.html", tab: "Survey 4.1", navSub: "Transplanting & Nursery", dedicated: true },
 
     /* ===================== 3. BIODIVERSITY ===================== */
     {
-      id: "biodiversity", page: "biodiversity.html", tab: "Biodiversity",
+      id: "biodiversity", page: "biodiversity.html", tab: "Biodiversity", navSub: "Fauna · Nests · Habitat",
       title: "Biodiversity Survey", subtitle: { en: "Fauna, nests, burrows, corridors, camera traps, birds, transects and habitat", pt: "Fauna, ninhos, tocas, corredores, câmaras, aves, transectos e habitat" },
       serviceUrl: "https://services8.arcgis.com/Yb7xytb4Ff2eEN6Y/arcgis/rest/services/Biodiversity_Survey5_view/FeatureServer",
       layerId: 0,
@@ -100,7 +100,7 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
 
     /* ===================== 4. HST ===================== */
     {
-      id: "hst", page: "hst.html", tab: "HST",
+      id: "hst", page: "hst.html", tab: "HST", navSub: "Health & Safety",
       title: "HST Survey · Health & Safety", subtitle: { en: "Site conditions, worker safety, PPE, first aid, hazards and actions", pt: "Condições do local, segurança, EPI, primeiros socorros, perigos e ações" },
       serviceUrl: "https://services8.arcgis.com/Yb7xytb4Ff2eEN6Y/arcgis/rest/services/HST_Survey_view/FeatureServer",
       layerId: 0,

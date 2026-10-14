@@ -278,11 +278,29 @@ body.lb-open { overflow: hidden; }
 .feed .sp { font-weight: 500; }
 
 /* Abas dos formulários */
-.nav-tabs { flex-basis: 100%; display: flex; gap: 4px; overflow-x: auto; margin-bottom: -12px; scrollbar-width: none; }
-.nav-tabs::-webkit-scrollbar { display: none; }
-.nav-tab { padding: 8px 16px 10px; border-radius: 8px 8px 0 0; color: var(--muted); text-decoration: none; font-weight: 600; font-size: .85rem; white-space: nowrap; border-bottom: 3px solid transparent; }
-.nav-tab:hover { color: var(--ink); background: var(--surface); }
-.nav-tab.active { color: var(--ink); border-bottom-color: var(--accent); background: var(--surface); }
+.nav-tabs {
+  flex-basis: 100%; order: 10; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
+  padding-top: 12px; border-top: 1px solid var(--line);
+}
+.nav-tab {
+  display: flex; align-items: center; gap: 12px; min-width: 0;
+  padding: 10px 14px; border-radius: var(--r);
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--ink); text-decoration: none;
+  transition: border-color .15s, background-color .15s;
+}
+.nav-tab:hover { border-color: var(--accent-2); background: var(--surface-2); }
+.nav-num { font-family: var(--f-mono); font-weight: 600; font-size: .8rem; color: var(--accent); flex: none; }
+.nav-txt { display: flex; flex-direction: column; min-width: 0; }
+.nav-name { font-family: var(--f-display); font-stretch: 85%; font-weight: 750; font-size: 1.05rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-sub { font-size: .74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-tab.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.nav-tab.active .nav-num, .nav-tab.active .nav-sub { color: var(--on-accent); opacity: .75; }
+@media (max-width: 760px) {
+  .nav-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nav-tab { padding: 8px 10px; gap: 8px; }
+  .nav-name { font-size: .95rem; }
+}
 .badge { font-size: .64rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; font-style: normal; }
 .badge.danger { background: var(--s-dead); color: #fff; }
 .ph-thumb { position: relative; }
