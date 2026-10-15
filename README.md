@@ -13,7 +13,14 @@ Feature Service do ArcGIS Online em tempo real (verificação de novas submissõ
 | 4 | HST Survey | `hst.html` | `HST_Survey_view` |
 
 Todas as páginas partilham a barra de abas, o tema (preto / verde / creme), o botão **EN / PT**,
-o **Relatório PDF** e a exportação **Excel**. Acrescentar `?demo` ao URL mostra dados fictícios (o modo demo mantém-se ao mudar de aba).
+o **Relatório PDF**, a exportação **Excel** e o botão **Photos (ZIP)**. Acrescentar `?demo` ao URL mostra dados fictícios (o modo demo mantém-se ao mudar de aba).
+
+## Photos (ZIP)
+
+Descarrega num único ZIP todas as fotografias do formulário da aba aberta, com uma pasta por pergunta/fase
+(ex.: `01_Tree`, `02_Trunk`…). O nome de cada ficheiro é `<ID do registo>_<data>_<pergunta>.jpg`. O ID vem do campo `photoIdField`
+em `js/surveys.js` (tree_uid, form_ref) ou de `tree_id` no Survey 4.1. Inclui um `index.csv` com o registo, a data, as coordenadas
+e o nome original de cada fotografia. As assinaturas do HST não são incluídas.
 
 ## O que cada dashboard mostra
 
@@ -36,6 +43,7 @@ css/styles.css        estilos comuns
 js/surveys.js         ← configuração de TODAS as abas (URLs, KPIs, gráficos, filtros, colunas, fotos)
 js/schemas.js         grupos, perguntas e listas de escolha dos XLSForms (gerado)
 js/nav.js             barra de abas
+js/photos-zip.js      botão Photos (ZIP), comum a todas as abas
 js/dash.js            motor dos dashboards genéricos (Survey 4, Biodiversity, HST)
 js/dash-exports.js    PDF e Excel dos dashboards genéricos
 js/dash-i18n.js       textos EN/PT dos dashboards genéricos
