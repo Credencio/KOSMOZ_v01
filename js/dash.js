@@ -182,8 +182,9 @@
       out.sort(ord ? (a, b) => ord.indexOf(a.code) - ord.indexOf(b.code) : (a, b) => b.n - a.n);
       return c.top ? out.slice(0, c.top) : out;
     }
-    if (c.kind === "yeslist") return fields.map((f) => { const ans = R.filter((x) => x.a[f]); const y = ans.filter((x) => x.a[f] === "yes").length; return { label: fieldLabel(f), n: y, display: `${y} / ${ans.length}` }; });
-    if (c.kind === "yesrate") return fields.map((f) => { const ans = R.filter((x) => x.a[f]); const y = ans.filter((x) => x.a[f] === "yes").length; const p = ans.length ? Math.round((y / ans.length) * 100) : 0;
+    const isYes = (v) => /^(yes|sim|y|true|1)$/i.test(String(v).trim());
+    if (c.kind === "yeslist") return fields.map((f) => { const ans = R.filter((x) => x.a[f]); const y = ans.filter((x) => isYes(x.a[f])).length; return { label: fieldLabel(f), n: y, display: `${y} / ${ans.length}` }; });
+    if (c.kind === "yesrate") return fields.map((f) => { const ans = R.filter((x) => x.a[f]); const y = ans.filter((x) => isYes(x.a[f])).length; const p = ans.length ? Math.round((y / ans.length) * 100) : 0;
       return { label: fieldLabel(f), n: p, display: ans.length ? `${p}%` : "—", max: 100, color: p >= 90 ? "--s-alive" : p >= 70 ? "--s-stressed" : "--s-dead" }; });
     if (c.kind === "hist") {
       const b = c.bins; const out = b.slice(0, -1).map((lo, i) => ({ label: `${lo}–${b[i + 1] - 1}`, n: 0 }));
@@ -438,6 +439,7 @@
         const lab = SCH.choices.species[a.species] || ""; const [sci, rest] = lab.split(" — "); a.sp_scientific = sci; a.sp_common_en = (rest || "").split(" / ")[0];
         a.sp_iucn = this.pick(["Least Concern (LC)", "Least Concern (LC)", "Least Concern (LC)", "Not Evaluated (NE)", "Vulnerable (VU)", "Endangered (EN)"]);
         if (a.iucn_status !== undefined) a.iucn_status = this.pick(["LC", "NE"]);
+        if (a.endemism !== undefined) { a.endemism = this.pick(["Not endemic", "Not endemic", "Near-endemic", "Endemic"]); ["ThreatSearch_assessed", "protected_in_situ", "protected_ex_situ"].forEach((k) => { a[k] = this.pick(["Yes", "No"]); }); }
       }
       if (SID === "hst") { const checks = Object.keys(a).filter((k) => a[k] === "yes" || a[k] === "no"); a.issues_count = checks.filter((k) => a[k] === "no").length; }
       const x = { raw: Object.assign({}, a), a, oid: this.n, gid: `demo${this.n}`, created: ts, creator: "demo",

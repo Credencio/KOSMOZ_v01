@@ -45,6 +45,8 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
         { title: { en: "Health issues", pt: "Problemas de saúde" }, kind: "multi", fields: ["health_issues"] },
         { title: { en: "Tree attributes (Yes)", pt: "Atributos da árvore (Sim)" }, kind: "yeslist", fields: ["mother_tree", "nurse_plant", "soil_stabilisation", "landscape_prominent"] },
         { title: { en: "IUCN status", pt: "Estado IUCN" }, kind: "cat", fields: ["iucn_status"] },
+        { title: { en: "Endemism", pt: "Endemismo" }, kind: "cat", fields: ["endemism"] },
+        { title: { en: "Conservation (Yes)", pt: "Conservação (Sim)" }, kind: "yeslist", fields: ["ThreatSearch_assessed", "protected_in_situ", "protected_ex_situ"] },
         { title: { en: "Estimated root ball", pt: "Torrão estimado" }, kind: "cat", fields: ["root_ball"], order: true },
         { title: { en: "Estimated weight", pt: "Peso estimado" }, kind: "cat", fields: ["tree_weight"], order: true },
         { title: { en: "Machinery requirement", pt: "Maquinaria necessária" }, kind: "cat", fields: ["machinery"] },
@@ -52,8 +54,8 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
         { title: { en: "Salvage potential (Yes)", pt: "Potencial de recuperação (Sim)" }, kind: "yeslist", fields: ["mulch_potential", "seed_potential", "propagation_potential", "habitat_log_potential", "restoration_potential", "biomass_potential"] },
         { title: { en: "Retention requirements (Yes)", pt: "Requisitos de retenção (Sim)" }, kind: "yeslist", fields: ["irrigation_required", "pruning_required", "monitoring_required", "barrier_required"] }
       ],
-      filters: ["survey_intention", "species", "health_status", "technician_name"],
-      columns: ["tree_uid", "species", "survey_intention", "plot_number", "dbh_cm", "tree_height", "crown_diameter", "health_status", "survival_probability", "viability_estimate", "technician_name", "_created"],
+      filters: ["survey_intention", "species", "endemism", "health_status", "technician_name"],
+      columns: ["tree_uid", "species", "iucn_status", "endemism", "survey_intention", "plot_number", "dbh_cm", "tree_height", "crown_diameter", "health_status", "survival_probability", "viability_estimate", "technician_name", "_created"],
       photos: [{ field: "tree_image", label: { en: "Tree", pt: "Árvore" } }, { field: "trunk_image", label: { en: "Trunk", pt: "Tronco" } }, { field: "leaves_image", label: { en: "Leaves / fruit", pt: "Folhas / fruto" } }]
     },
 

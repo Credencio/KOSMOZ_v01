@@ -52,6 +52,26 @@ window.SCHEMAS = {
       "label": "IUCN Status:"
      },
      {
+      "name": "endemism",
+      "type": "text",
+      "label": "Endemism"
+     },
+     {
+      "name": "ThreatSearch_assessed",
+      "type": "text",
+      "label": "ThreatSearch Assessed"
+     },
+     {
+      "name": "protected_in_situ",
+      "type": "text",
+      "label": "Protected In Situ"
+     },
+     {
+      "name": "protected_ex_situ",
+      "type": "text",
+      "label": "Protected Ex Situ"
+     },
+     {
       "name": "tree_image",
       "type": "image",
       "label": "Image of Tree"
