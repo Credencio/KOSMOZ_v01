@@ -16,7 +16,12 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
   const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
 
   const HST_CHECKS = ["site_clean", "safe_access", "signage", "slip_trip", "animals_ctrl", "weather_safe", "waste_mgmt",
-    "ppe_worn", "emergency_aware", "tools_ok", "vehicles_ok", "fa_kit", "fa_complete", "fa_expiry", "fa_training"];
+    "ppe_worn", "emergency_aware", "tools_ok", "vehicles_ok", "fa_kit", "fa_complete", "fa_expiry", "fa_training",
+    "hse_dialogue", "equipment_operators", "checklist_made", "loading_hse", "waste_segregation", "equipment_supply"];
+  /* verificações em que "No" é o resultado conforme (ex.: derrame químico no solo) */
+  const HST_NEG = ["chemical_soil"];
+  const hstFails = (x) => { let n = 0, any = false; HST_CHECKS.forEach((f) => { if (x.a[f]) { any = true; if (!yes(x.a[f])) n++; } });
+    HST_NEG.forEach((f) => { if (x.a[f]) { any = true; if (yes(x.a[f])) n++; } }); return any ? n : null; };
   const THREAT = /\((CR|EN|VU)\)/;
 
   window.SURVEYS = [
@@ -112,15 +117,17 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
       colorBy: { field: "risk_level", colors: { low: "--s-alive", medium: "--s-stressed", high: "--s-damaged", critical: "--s-dead" } },
       kpis: [
         { label: { en: "Inspections", pt: "Inspeções" }, value: (R) => R.length, sub: (R) => `${new Set(R.map((x) => (x.a.collection_site || "").trim().toLowerCase()).filter(Boolean)).size} sites` },
-        { label: { en: "Compliance", pt: "Conformidade" }, value: (R) => { let y = 0, n = 0; R.forEach((x) => HST_CHECKS.forEach((f) => { if (x.a[f]) { n++; if (yes(x.a[f])) y++; } })); return n ? `${Math.round((y / n) * 100)}%` : "—"; }, sub: () => "15 checks · Yes / answered" },
+        { label: { en: "Compliance", pt: "Conformidade" }, value: (R) => { let y = 0, n = 0; R.forEach((x) => { HST_CHECKS.forEach((f) => { if (x.a[f]) { n++; if (yes(x.a[f])) y++; } }); HST_NEG.forEach((f) => { if (x.a[f]) { n++; if (!yes(x.a[f])) y++; } }); }); return n ? `${Math.round((y / n) * 100)}%` : "—"; }, sub: () => `${HST_CHECKS.length + HST_NEG.length} checks · compliant / answered` },
         { label: { en: "High / critical risk", pt: "Risco alto / crítico" }, value: (R) => R.filter((x) => x.a.risk_level === "high" || x.a.risk_level === "critical").length, sub: (R) => `${R.filter((x) => x.a.risk_level === "critical").length} critical` },
         { label: { en: "Non-conformities", pt: "Não-conformidades" }, value: (R) => R.filter((x) => yes(x.a.non_conformity)).length, sub: (R) => `${pct(R.filter((x) => yes(x.a.non_conformity)).length, R.length)}% of inspections` },
         { label: { en: "Actions required", pt: "Ações necessárias" }, value: (R) => R.filter((x) => yes(x.a.immediate_action)).length, sub: (R, h) => h.t("overdue_n", { n: R.filter((x) => yes(x.a.immediate_action) && x.a.action_deadline && x.a.action_deadline < today0()).length }) },
-        { label: { en: "Avg. checks failed", pt: "Média de verificações falhadas" }, value: (R) => { const v = avg(R.map((x) => x.a.issues_count)); return v == null ? "—" : v.toFixed(1); }, sub: () => "of 15 per inspection" }
+        { label: { en: "Avg. checks failed", pt: "Média de verificações falhadas" }, value: (R) => { const v = avg(R.map(hstFails)); return v == null ? "—" : v.toFixed(1); }, sub: (R) => `${R.filter((x) => yes(x.a.chemical_soil)).length} chemical spill(s) · of ${HST_CHECKS.length + HST_NEG.length} checks` }
       ],
       charts: [
         { title: { en: "Overall risk level", pt: "Nível de risco" }, kind: "cat", fields: ["risk_level"], colorFrom: "colorBy", order: true },
         { title: { en: "Compliance by check (% Yes)", pt: "Conformidade por verificação (% Sim)" }, kind: "yesrate", fields: HST_CHECKS, wide: true },
+        { title: { en: "Operators training & checklist (% Yes)", pt: "Formação de operadores e checklist (% Sim)" }, kind: "yesrate", fields: ["equipment_operators", "checklist_made", "loading_hse"] },
+        { title: { en: "Environmental risk control (Yes)", pt: "Controlo de risco ambiental (Sim)" }, kind: "yeslist", fields: ["waste_segregation", "equipment_supply", "chemical_soil"] },
         { title: { en: "PPE in use", pt: "EPI em uso" }, kind: "multi", fields: ["ppe_in_use"] },
         { title: { en: "Hazards identified", pt: "Perigos identificados" }, kind: "multi", fields: ["hazards"] },
         { title: { en: "Type of activity", pt: "Tipo de atividade" }, kind: "cat", fields: ["activity_type"] },
@@ -129,8 +136,10 @@ window.PLATFORM = { title: "Ecological Monitoring Platform", pollSeconds: 30, po
       ],
       actions: { when: (x) => yes(x.a.immediate_action), what: "action_description", who: "action_responsible", due: "action_deadline", where: "collection_site" },
       filters: ["risk_level", "activity_type", "collection_site", "technician"],
-      columns: ["form_ref", "survey_date", "collection_site", "activity_type", "risk_level", "issues_count", "non_conformity", "immediate_action", "action_deadline", "inspector"],
-      photos: [{ field: "hazard_photo", label: { en: "Hazard", pt: "Perigo" } }, { field: "nc_photo", label: { en: "Non-conformity", pt: "Não-conformidade" } }],
+      columns: ["form_ref", "survey_date", "collection_site", "activity_type", "risk_level", "hse_dialogue", "issues_count", "non_conformity", "chemical_soil", "immediate_action", "action_deadline", "inspector"],
+      photos: [{ field: "hse_dialogue_photo", label: { en: "HSE dialogue", pt: "Diálogo HSE" } }, { field: "ppe_photo", label: { en: "PPE", pt: "EPI" } },
+        { field: "hazard_photo", label: { en: "Hazard", pt: "Perigo" } }, { field: "nc_photo", label: { en: "Non-conformity", pt: "Não-conformidade" } },
+        { field: "operators_photo", label: { en: "Operators", pt: "Operadores" } }, { field: "envrisk_photo", label: { en: "Environmental", pt: "Ambiental" } }],
       hiddenPhotos: ["inspector_signature", "supervisor_signature"]
     }
   ];

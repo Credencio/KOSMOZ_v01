@@ -1523,6 +1523,18 @@ window.SCHEMAS = {
     "relevant": "",
     "fields": [
      {
+      "name": "hse_dialogue",
+      "type": "select_one",
+      "label": "Has the Health, Safety and Environment dialogue been carried out?",
+      "list": "yes_no"
+     },
+     {
+      "name": "hse_dialogue_photo",
+      "type": "image",
+      "label": "HSE Dialogue photo",
+      "relevant": "selected(${hse_dialogue}, 'yes')"
+     },
+     {
       "name": "site_clean",
       "type": "select_one",
       "label": "Area clean and organized",
@@ -1607,6 +1619,11 @@ window.SCHEMAS = {
       "type": "select_multiple",
       "label": "PPE in use",
       "list": "ppe"
+     },
+     {
+      "name": "ppe_photo",
+      "type": "image",
+      "label": "PPE photo"
      }
     ]
    },
@@ -1728,6 +1745,66 @@ window.SCHEMAS = {
       "name": "observations",
       "type": "text",
       "label": "Observations"
+     }
+    ]
+   },
+   {
+    "name": "grp_new",
+    "label": "Operators training and Checklist",
+    "relevant": "",
+    "fields": [
+     {
+      "name": "equipment_operators",
+      "type": "select_one",
+      "label": "Are the equipment operators trained?",
+      "list": "yes_no"
+     },
+     {
+      "name": "checklist_made",
+      "type": "select_one",
+      "label": "Was a checklist made?",
+      "list": "yes_no"
+     },
+     {
+      "name": "loading_hse",
+      "type": "select_one",
+      "label": "Is the loading being accompanied by HSE?",
+      "list": "yes_no"
+     },
+     {
+      "name": "operators_photo",
+      "type": "image",
+      "label": "Optional Photo"
+     }
+    ]
+   },
+   {
+    "name": "grp_env_risk",
+    "label": "Environmental Risk Control",
+    "relevant": "",
+    "fields": [
+     {
+      "name": "waste_segregation",
+      "type": "select_one",
+      "label": "Are waste properly segregated?",
+      "list": "yes_no"
+     },
+     {
+      "name": "equipment_supply",
+      "type": "select_one",
+      "label": "Correct equipment supply?",
+      "list": "yes_no"
+     },
+     {
+      "name": "chemical_soil",
+      "type": "select_one",
+      "label": "Any chemical spillage on the soil?",
+      "list": "yes_no"
+     },
+     {
+      "name": "envrisk_photo",
+      "type": "image",
+      "label": "Environmental Photo"
      }
     ]
    },
